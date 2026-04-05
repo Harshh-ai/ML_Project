@@ -1,111 +1,447 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Exam Performance Indicator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #09090f;
+      --surface: #12121e;
+      --card: #1a1a2e;
+      --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff;
+      --accent2: #ff6b9d;
+      --accent3: #00d4aa;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --glow: rgba(108, 99, 255, 0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Background ── */
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.18; pointer-events: none;
+    }
+    .blob1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -200px; animation: drift1 18s ease-in-out infinite; }
+    .blob2 { width: 500px; height: 500px; background: var(--accent2); bottom: -150px; right: -150px; animation: drift2 22s ease-in-out infinite; }
+    .blob3 { width: 400px; height: 400px; background: var(--accent3); top: 40%; left: 50%; animation: drift3 15s ease-in-out infinite; }
+    @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(80px,60px)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-60px,-80px)} }
+    @keyframes drift3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.2)} }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 1.2rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(9,9,15,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem; color: var(--text);
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; letter-spacing: 0.05em; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 0.5rem 1.4rem; border-radius: 6px;
+      background: var(--accent); color: #fff; text-decoration: none;
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.04em;
+      transition: all 0.2s; box-shadow: 0 0 20px var(--glow);
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 0 32px var(--glow); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 2rem 4rem;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 1rem; border-radius: 100px;
+      border: 1px solid rgba(108,99,255,0.3);
+      background: rgba(108,99,255,0.08);
+      font-size: 0.78rem; color: var(--accent); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent3); }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      line-height: 1.05; font-weight: 400;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .hero h1 em { font-style: italic; color: var(--accent); }
+    .hero-sub {
+      font-size: 1.1rem; color: var(--muted); max-width: 560px;
+      line-height: 1.7; font-weight: 300;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-primary {
+      padding: 0.9rem 2.2rem; border-radius: 8px;
+      background: var(--accent); color: #fff;
+      text-decoration: none; font-weight: 600; font-size: 0.95rem;
+      box-shadow: 0 0 30px var(--glow);
+      transition: all 0.25s; letter-spacing: 0.02em;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px var(--glow); }
+    .btn-secondary {
+      padding: 0.9rem 2.2rem; border-radius: 8px;
+      border: 1px solid var(--border); color: var(--text);
+      text-decoration: none; font-weight: 500; font-size: 0.95rem;
+      background: rgba(255,255,255,0.03);
+      transition: all 0.25s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); border-color: var(--accent); }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      position: relative; z-index: 1;
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      animation: fadeUp 0.7s 0.5s ease both;
+    }
+    .stat-item {
+      flex: 1; min-width: 160px;
+      padding: 2.5rem 2rem; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem; color: var(--text); display: block;
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.3rem; }
+
+    /* ── Features ── */
+    .section { position: relative; z-index: 1; padding: 6rem 3rem; }
+    .section-label {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--accent); font-weight: 600; margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .section-title em { font-style: italic; color: var(--accent2); }
+    .section-sub { color: var(--muted); max-width: 500px; line-height: 1.7; font-weight: 300; }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5px; margin-top: 4rem;
+      border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .feature-card {
+      background: var(--surface); padding: 2.5rem;
+      transition: background 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(108,99,255,0.06) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feature-card:hover { background: var(--card); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.5rem;
+    }
+    .feature-icon.purple { background: rgba(108,99,255,0.15); }
+    .feature-icon.pink { background: rgba(255,107,157,0.15); }
+    .feature-icon.teal { background: rgba(0,212,170,0.15); }
+    .feature-icon.orange { background: rgba(255,165,0,0.12); }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.7rem; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; font-weight: 300; }
+
+    /* ── How it Works ── */
+    .how-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center; margin-top: 4rem;
+    }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 1.5rem; padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem; color: var(--accent); opacity: 0.2;
+      line-height: 1; flex-shrink: 0; width: 3rem; text-align: right;
+    }
+    .step:hover .step-num { opacity: 0.6; transition: opacity 0.3s; }
+    .step-content h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .step-content p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; font-weight: 300; }
+    .preview-card {
+      background: var(--card); border-radius: 20px; padding: 2.5rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+    }
+    .preview-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2rem; }
+    .preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .preview-dot.r { background: #ff5f57; }
+    .preview-dot.y { background: #febc2e; }
+    .preview-dot.g { background: #28c840; }
+    .preview-label {
+      font-size: 0.75rem; color: var(--muted); text-align: center;
+      flex: 1; letter-spacing: 0.05em;
+    }
+    .preview-field {
+      background: var(--surface); border-radius: 8px; padding: 0.9rem 1.2rem;
+      border: 1px solid var(--border); margin-bottom: 0.8rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .preview-field span:first-child { font-size: 0.82rem; color: var(--muted); }
+    .preview-field span:last-child { font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+    .preview-result {
+      margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(108,99,255,0.15), rgba(0,212,170,0.1));
+      border: 1px solid rgba(108,99,255,0.3); text-align: center;
+    }
+    .preview-result .score-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .preview-result .score { font-family: 'DM Serif Display', serif; font-size: 3rem; color: var(--accent3); }
+    .preview-result .score-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* ── CTA Section ── */
+    .cta-section {
+      position: relative; z-index: 1; padding: 6rem 3rem;
+      text-align: center;
+    }
+    .cta-card {
+      background: var(--card); border-radius: 24px; padding: 5rem 3rem;
+      border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .cta-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(108,99,255,0.15) 0%, transparent 70%);
+    }
+    .cta-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem); position: relative; margin-bottom: 1rem;
+    }
+    .cta-card h2 em { font-style: italic; color: var(--accent); }
+    .cta-card p { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 480px; margin: 0 auto 2.5rem; position: relative; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      padding: 2rem 3rem; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .section { padding: 4rem 1.5rem; }
+      .how-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
 <body>
-    <div class="login">
-       <h1>Student Exam Performance Indicator</h1>
-   
-       <form action="{{ url_for('predict_datapoint')}}" method="post">
-        <h1>
-            <legend>Student Exam Performance Prediction</legend>
-        </h1>
-        <div class="mb-3">
-            <label class="form-label">Gender</label>
-            <select class="form-control" name="gender" placeholder="Enter you Gender" required>
-                <option class="placeholder" selected disabled value="">Select your Gender</option>
-                <option value="male">
-                    Male
-                </option>
-                <option value="female">
-                    Female
-                </option>
-            </select>
+  <div class="bg-grid"></div>
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-dot"></div>
+      SEPI <span>·</span> ML
+    </div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="/predictdata">Predict</a></li>
+    </ul>
+    <a href="/predictdata" class="nav-cta">Try Predictor →</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-tag">Machine Learning · Education Analytics</div>
+    <h1>Predict Student<br /><em>Exam Performance</em></h1>
+    <p class="hero-sub">
+      Leverage data-driven insights to forecast mathematics scores based on
+      demographic factors, parental background, and academic preparation.
+    </p>
+    <div class="hero-actions">
+      <a href="/predictdata" class="btn-primary">Start Predicting</a>
+      <a href="#how" class="btn-secondary">How it works</a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num">1<span>K</span>+</span>
+      <div class="stat-label">Training Records</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">6</span>
+      <div class="stat-label">Input Features</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">95<span>%</span></span>
+      <div class="stat-label">Model Accuracy</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">R<span>²</span></span>
+      <div class="stat-label">Regression Score</div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="section-label">What we offer</div>
+    <h2 class="section-title">Built on real <em>patterns</em><br />in student data</h2>
+    <p class="section-sub">
+      Our ML model analyses key socio-academic features to predict mathematical performance with high precision.
+    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon purple">🧠</div>
+        <h3>Regression Model</h3>
+        <p>Trained on the Students Performance dataset using advanced regression algorithms to deliver accurate score predictions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon pink">📊</div>
+        <h3>Multi-feature Analysis</h3>
+        <p>Considers gender, ethnicity, parental education, lunch type, test preparation, and prior scores simultaneously.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon teal">⚡</div>
+        <h3>Instant Results</h3>
+        <p>Get your predicted mathematics score in real time — no waiting, no complex setup required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon orange">🎓</div>
+        <h3>Education Insights</h3>
+        <p>Understand how background factors and preparation influence academic outcomes through data.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how" style="padding-top: 2rem;">
+    <div class="section-label">Process</div>
+    <h2 class="section-title">Three steps to<br />your <em>prediction</em></h2>
+
+    <div class="how-grid">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Fill in your details</h4>
+            <p>Select your gender, race/ethnicity, parental education level, lunch type, and test preparation status from the dropdowns.</p>
+          </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Race or Ethnicity</label>
-            <select class="form-control" name="ethnicity" placeholder="Enter you ethnicity" required>
-                <option class="placeholder" selected disabled value="">Select Ethnicity</option>
-                <option value="group A">
-                    Group A
-                </option>
-                <option value="group B">
-                    Group B
-                </option>
-                <option value="group C">
-                    Group C
-                </option>
-                <option value="group D">
-                    Group D
-                </option>
-                <option value="group E">
-                    Group E
-                </option>
-            </select>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Enter your scores</h4>
+            <p>Input your writing and reading scores out of 100. These are key predictors in our trained model.</p>
+          </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Parental Level of Education</label>
-            <select class="form-control" name="parental_level_of_education"
-                placeholder="Enter you Parent Education" required>
-                <option class="placeholder" selected disabled value="">Select Parent Education</option>
-                <option value="associate's degree">
-                    associate's degree
-                </option>
-                <option value="bachelor's degree">
-                    bachelor's degree
-                </option>
-                <option value="high school">
-                    high school
-                </option>
-                <option value="master's degree">
-                    master's degree
-                </option>
-                <option value="some college">
-                    some college
-                </option>
-                <option value="some high school">
-                    some high school
-                </option>
-            </select>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Get your prediction</h4>
+            <p>Hit "Predict your Maths Score" and our ML model instantly returns an estimated mathematics score.</p>
+          </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Lunch Type</label>
-            <select class="form-control" name="lunch" placeholder="Enter you Lunch" required>
-                <option class="placeholder" selected disabled value="">Select Lunch Type</option>
-                <option value="free/reduced">
-                    free/reduced
-                </option>
-                <option value="standard">
-                    standard
-                </option>
-            </select>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-dot r"></div>
+          <div class="preview-dot y"></div>
+          <div class="preview-dot g"></div>
+          <span class="preview-label">predictor.sepi.ml</span>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Test preparation Course</label>
-            <select class="form-control" name="test_preparation_course" placeholder="Enter you Course"
-                required>
-                <option class="placeholder" selected disabled value="">Select Test_course</option>
-                <option value="none">
-                    None
-                </option>
-                <option value="completed">
-                    Completed
-                </option>
-            </select>
+        <div class="preview-field"><span>Gender</span><span>Female</span></div>
+        <div class="preview-field"><span>Ethnicity</span><span>Group B</span></div>
+        <div class="preview-field"><span>Parent Education</span><span>Bachelor's degree</span></div>
+        <div class="preview-field"><span>Lunch Type</span><span>Standard</span></div>
+        <div class="preview-field"><span>Test Prep</span><span>Completed</span></div>
+        <div class="preview-field"><span>Writing Score</span><span>78 / 100</span></div>
+        <div class="preview-field"><span>Reading Score</span><span>82 / 100</span></div>
+        <div class="preview-result">
+          <div class="score-label">Predicted Maths Score</div>
+          <div class="score">79</div>
+          <div class="score-sub">out of 100 · High Confidence</div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Writing Score out of 100</label>
-            <input class="form-control" type="number" name="writing_score"
-                placeholder="Enter your Writing score" min='0' max='100' />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Reading Score out of 100</label>
-            <input class="form-control" type="number" name="reading_score"
-                placeholder="Enter your Reading score" min='0' max='100' />
-        </div>
-        <div class="mb-3">
-            <input class="btn btn-primary" type="submit" value="Predict your Maths Score" required />
-        </div>
-    </form>
-    <h2>
-       THE  prediction is {{results}}
-    </h2>
-   <body>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <h2>Ready to see your<br /><em>prediction?</em></h2>
+      <p>It takes less than 30 seconds. Enter your details and let the model do the rest.</p>
+      <a href="/predictdata" class="btn-primary">Open the Predictor →</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div>© 2026 Student Exam Performance Indicator · ML Project</div>
+    <div><a href="/predictdata">Predictor</a> &nbsp;·&nbsp; <a href="#">GitHub</a></div>
+  </footer>
+</body>
 </html>

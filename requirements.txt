@@ -13,3 +13,4 @@ tzdata==2025.3
 xgboost
 catboost
 flask
+gunicorn
